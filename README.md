@@ -9,6 +9,30 @@ A Chrome Extension (Manifest V3) that keeps a tiny virtual fish alive in your br
 </p>
 
 ---
+## 📦 Installation (How to add this extension in your Browser) (Chrome, Edge, Brave, etc.)
+
+Since this extension is not published on the Chrome Web Store, you install it manually in developer mode.
+
+1. **Download** the extension: click the **Download** button above (or [this link](https://github.com/nguyenaz123/my-fish-tank/releases/download/v1.0/water-extension.zip)).
+2. **Unzip** `water-extension.zip` into a folder you can keep (e.g. `Documents\water-extension`). Don't delete this folder afterwards — Chrome loads the extension directly from it.
+3. Open Chrome and go to `chrome://extensions` (where you manage all extensions).
+
+   ![Step 3 — open chrome://extensions](assets/step3.png)
+
+4. Turn on **Developer mode** (top-right toggle).
+
+   ![Step 4 — enable Developer mode](assets/step4.png)
+
+5. Click **Load unpacked** and select the unzipped `water-extension` folder from your computer.
+
+   ![Step 5 — Load unpacked](assets/step5.png)
+
+6. Pin the 🐠 icon to your toolbar so you can see it easily.
+
+   ![Step 6 — pin the icon](assets/step6.png)
+
+> 💡 Works with any Chromium-based browser (Chrome, Edge, Brave, etc.). For Edge, use `edge://extensions` instead.
+---
 
 ## ✨ Features
 
@@ -24,20 +48,6 @@ A Chrome Extension (Manifest V3) that keeps a tiny virtual fish alive in your br
 - **Synthesized sound** via the Web Audio API (no mp3 files needed): water drops and pouring sounds. Toggle on/off in the popup.
 - Scheduling uses `chrome.alarms` (proper MV3 approach — survives the service worker going to sleep).
 
----
-
-## 📦 Installation (Developer Mode)
-
-Since this extension is not published on the Chrome Web Store, you install it manually in developer mode.
-
-1. **Download** the extension: click the **Download** button above (or [this link](https://github.com/nguyenaz123/my-fish-tank/releases/download/v1.0/water-extension.zip)).
-2. **Unzip** `water-extension.zip` into a folder you can keep (e.g. `Documents\water-extension`). Don't delete this folder afterwards — Chrome loads the extension directly from it.
-3. Open Chrome and go to `chrome://extensions`.
-4. Turn on **Developer mode** (top-right toggle).
-5. Click **Load unpacked** and select the unzipped `water-extension` folder.
-6. Pin the 🐠 icon to your toolbar so you can see it easily.
-
-> 💡 Works with any Chromium-based browser (Chrome, Edge, Brave, etc.). For Edge, use `edge://extensions` instead.
 
 ---
 
