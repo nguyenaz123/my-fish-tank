@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Bể Cá Nhắc Nước",
+  "version": "1.0.0",
+  "description": "Chú cá nhắc bạn uống nước. Quên uống là cá ngộp! 🐠💧",
+  "permissions": ["storage", "alarms", "offscreen", "tabs", "scripting"],
+  "host_permissions": ["http://*/*", "https://*/*", "file:///*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Bể Cá Nhắc Nước",
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "48": "assets/icon48.png",
+      "128": "assets/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "js": ["content/overlay.js"],
+      "css": ["content/overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["tank/*"],
+      "matches": ["http://*/*", "https://*/*", "file:///*"]
+    }
+  ]
+}

@@ -1,0 +1,400 @@
+/* ==================================================================
+   Bể Cá Nhắc Nước — Giao diện (dùng chung cho popup & overlay)
+   ================================================================== */
+:root {
+  --level: 60%;               /* mực nước, JS cập nhật qua --level */
+  --water-top: rgba(0, 180, 216, 0.55);
+  --water-bottom: rgba(0, 119, 182, 0.85);
+}
+
+* { box-sizing: border-box; }
+
+/* đảm bảo thuộc tính [hidden] luôn thắng các rule display bên dưới */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.scene {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ---------- Khung kính bể cá ---------- */
+.tank {
+  position: relative;
+  width: 320px;
+  height: 240px;
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #caf0f8 0%, #ade8f4 35%, #90e0ef 100%);
+  border: 6px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 0 30px rgba(0, 119, 182, 0.25),
+    0 14px 40px rgba(0, 50, 90, 0.35);
+}
+
+/* ---------- Nước + sóng ---------- */
+.water {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: var(--level);
+  background: linear-gradient(180deg, var(--water-top), var(--water-bottom));
+  transition: height 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Khối bo góc quay tròn → rìa nhô lên thụt xuống = mặt nước dập dềnh */
+.wave {
+  position: absolute;
+  left: 50%;
+  top: -150px;           /* nhô lên trên mép nước */
+  width: 420px;
+  height: 420px;
+  margin-left: -210px;
+  border-radius: 43%;
+}
+.wave1 {
+  background: rgba(0, 180, 216, 0.6);
+  animation: spin 7s linear infinite;
+}
+.wave2 {
+  background: rgba(2, 132, 199, 0.4);
+  animation: spin 11s linear infinite reverse;
+  top: -158px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Bong bóng ---------- */
+.bubbles, .fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bubble {
+  position: absolute;
+  bottom: -14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+              rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.25));
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+  animation: bubbleUp linear forwards;
+}
+@keyframes bubbleUp {
+  0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  10%  { opacity: 0.9; }
+  25%  { transform: translate(8px, -25%) scale(1); }
+  50%  { transform: translate(-8px, -50%) scale(1); }
+  75%  { transform: translate(6px, -75%) scale(1); }
+  100% { transform: translate(-4px, -100%) scale(1.05); opacity: 0; }
+}
+
+/* ---------- Cá ---------- */
+.fish {
+  position: absolute;
+  left: 50%;
+  bottom: 45%;
+  width: 110px;
+  height: 74px;
+  margin-left: -55px;
+  z-index: 4;
+  transition: left 3s ease-in-out, bottom 1.2s ease-in-out;
+  filter: drop-shadow(0 4px 6px rgba(0, 40, 80, 0.3));
+}
+.fish-body { width: 100%; height: 100%; transform-origin: center; }
+
+/* HẠNH PHÚC (>70%): bồng bềnh + lắc đuôi thư thái */
+.fish.happy { animation: floatHappy 3.5s ease-in-out infinite; }
+.fish.happy .tail { animation: wag 1.4s ease-in-out infinite; transform-origin: 18px 40px; }
+@keyframes floatHappy {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50%      { transform: translateY(-18px) rotate(4deg); }
+}
+@keyframes wag {
+  0%, 100% { transform: rotate(-12deg) scaleX(1); }
+  50%      { transform: rotate(12deg) scaleX(1.15); }
+}
+
+/* HOẢNG LOẠN (20–40%): bơi giật cục, lắc nhanh biên độ ngắn */
+.fish.panic { animation: panicJitter 0.18s steps(2) infinite; }
+.fish.panic .tail { animation: wag 0.3s ease-in-out infinite; transform-origin: 18px 40px; }
+@keyframes panicJitter {
+  0%   { transform: translate(-4px, 2px) rotate(-3deg); }
+  50%  { transform: translate(4px, -2px) rotate(3deg); }
+  100% { transform: translate(-3px, 1px) rotate(-2deg); }
+}
+
+/* NGẠT THỞ (<20%): ngửa bụng, thỉnh thoảng giật nhẹ */
+.fish.dying { animation: gasp 4s ease-in-out infinite; }
+.fish.dying .fish-body { transform: rotate(170deg); filter: grayscale(0.4) brightness(0.9); }
+@keyframes gasp {
+  0%, 88%, 100% { transform: translateY(0) rotate(0deg); }
+  90%  { transform: translateY(-4px) rotate(2deg); }
+  94%  { transform: translateY(0) rotate(-2deg); }
+}
+
+/* Hướng bơi (JS lật) */
+.fish.flip .fish-body { transform: scaleX(-1); }
+.fish.panic.flip .fish-body { transform: scaleX(-1); }
+.fish.dying.flip .fish-body { transform: rotate(170deg) scaleX(-1); }
+
+/* ---------- Đáy bể: sỏi + rong ---------- */
+.gravel {
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 26px;
+  background:
+    radial-gradient(circle at 10% 60%, #6b4f3a 0 6px, transparent 7px),
+    radial-gradient(circle at 25% 80%, #8a6d4f 0 7px, transparent 8px),
+    radial-gradient(circle at 45% 55%, #5c4433 0 6px, transparent 7px),
+    radial-gradient(circle at 65% 78%, #7a5c42 0 8px, transparent 9px),
+    radial-gradient(circle at 82% 60%, #6b4f3a 0 6px, transparent 7px),
+    linear-gradient(180deg, #8a6d4f, #5c4433);
+  z-index: 3;
+}
+.plant {
+  position: absolute;
+  bottom: 18px;
+  width: 14px; height: 80px;
+  background: linear-gradient(180deg, #2a9d8f, #1b6e63);
+  border-radius: 50% 50% 40% 40%;
+  transform-origin: bottom center;
+  z-index: 2;
+}
+.plant-a { left: 30px; animation: sway 4s ease-in-out infinite; }
+.plant-b { left: 250px; height: 60px; animation: sway 5s ease-in-out infinite reverse; }
+@keyframes sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50%      { transform: rotate(6deg); }
+}
+
+/* ---------- Bong bóng thoại ---------- */
+.speech {
+  position: relative;
+  max-width: 300px;
+  background: #fff;
+  color: #1d3557;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.35;
+  padding: 12px 16px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 40, 80, 0.3);
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: pre-line; /* cho phép xuống dòng dòng đếm ngược */
+}
+.speech::after {
+  content: "";
+  position: absolute;
+  bottom: -10px; left: 40px;
+  border: 10px solid transparent;
+  border-top-color: #fff;
+  border-bottom: 0;
+}
+@keyframes popIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ---------- Bảng % (popup) ---------- */
+.meter {
+  font-weight: 700;
+  font-size: 14px;
+  color: #0077b6;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+/* ---------- Nút bấm (overlay) ---------- */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 320px;
+}
+.btn {
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.2s ease, background 0.2s;
+  font-family: inherit;
+}
+.btn:active { transform: translateY(2px) scale(0.99); }
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(135deg, #00b4d8, #0077b6);
+  box-shadow: 0 8px 20px rgba(0, 119, 182, 0.45);
+}
+.btn-primary b { font-size: 15px; opacity: 0.95; }
+.btn-ghost {
+  color: #cfe8f3;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.16); }
+
+/* Ripple */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  transform: scale(0);
+  animation: ripple 0.6s ease-out;
+  pointer-events: none;
+}
+@keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+/* ---------- Hiệu ứng FX ---------- */
+.raindrop {
+  position: absolute;
+  top: -16px;
+  width: 8px; height: 14px;
+  background: linear-gradient(180deg, #90e0ef, #0077b6);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  animation: fall 0.9s ease-in forwards;
+}
+@keyframes fall {
+  to { transform: translateY(260px); opacity: 0; }
+}
+.float-emoji {
+  position: absolute;
+  font-size: 22px;
+  animation: floatUp 1.4s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(-90px) scale(1.2); opacity: 0; }
+}
+
+/* Cá nhào lộn 360° khi uống */
+.fish.flip-trick { animation: flipTrick 1s ease-in-out !important; }
+@keyframes flipTrick {
+  0%   { transform: rotate(0) scale(1); }
+  50%  { transform: rotate(360deg) scale(1.25) translateY(-30px); }
+  100% { transform: rotate(720deg) scale(1); }
+}
+
+/* Rung bần bật khi bỏ qua */
+.tank.shiver { animation: shiver 0.3s 3; }
+@keyframes shiver {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* ---------- Chế độ OVERLAY ---------- */
+body.mode-overlay {
+  background: transparent;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+body.mode-overlay .scene { gap: 18px; }
+body.mode-overlay .tank { width: 440px; height: 320px; }
+body.mode-overlay .fish { width: 130px; height: 88px; margin-left: -65px; }
+body.mode-overlay .actions { width: 440px; }
+
+/* ---------- Chế độ POPUP (thu gọn) ---------- */
+body.mode-popup {
+  width: 340px;
+  padding: 12px;
+  background: linear-gradient(180deg, #0a192f, #102a43);
+}
+body.mode-popup .scene { gap: 10px; }
+body.mode-popup .tank { width: 300px; height: 190px; }
+body.mode-popup .fish { width: 92px; height: 62px; margin-left: -46px; }
+body.mode-popup .speech { max-width: 280px; font-size: 14px; padding: 10px 14px; }
+body.mode-popup .popup-controls { display: flex; }
+
+.popup-controls {
+  display: none;
+  gap: 10px;
+  width: 300px;
+  align-items: center;
+}
+.popup-controls .btn { flex: 1; padding: 10px; font-size: 13px; }
+.mini {
+  font-size: 12px; padding: 8px 10px; border-radius: 10px;
+}
+/* ---------- Công tắc âm thanh (toggle switch) ---------- */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px;
+}
+/* ẩn checkbox gốc nhưng vẫn nhận tương tác/bàn phím */
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+/* đường ray */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+/* núm trượt */
+.switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* trạng thái BẬT */
+.toggle input:checked + .switch {
+  background: linear-gradient(135deg, #00b4d8, #0077b6);
+  border-color: transparent;
+  box-shadow: 0 0 10px rgba(0, 180, 216, 0.55);
+}
+.toggle input:checked + .switch .switch-knob {
+  transform: translateX(18px);
+}
+/* viền focus cho bàn phím */
+.toggle input:focus-visible + .switch {
+  outline: 2px solid #90e0ef;
+  outline-offset: 2px;
+}
+/* biểu tượng loa */
+.switch-icon {
+  font-size: 16px;
+  line-height: 1;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.toggle input:not(:checked) ~ .switch-icon {
+  opacity: 0.4;
+  transform: scale(0.9);
+}

@@ -1,0 +1,85 @@
+<meta charset="utf-8" />
+<title>Bể Cá</title>
+<link rel="stylesheet" href="tank.css" />
+
+<div id="scene" class="scene">
+  <!-- Khung kính bể cá -->
+  <div id="tank" class="tank">
+    <!-- Nước + 2 lớp sóng quay tạo mặt nước dập dềnh -->
+    <div id="water" class="water">
+      <div class="wave wave1"></div>
+      <div class="wave wave2"></div>
+    </div>
+
+    <!-- Lớp chứa bong bóng (JS tạo động) -->
+    <div id="bubbles" class="bubbles"></div>
+
+    <!-- Lớp chứa hiệu ứng (mưa nước, tim, nước mắt) -->
+    <div id="fx" class="fx"></div>
+
+    <!-- Chú cá -->
+    <div id="fish" class="fish happy">
+      <div class="fish-body">
+        <svg viewBox="0 0 120 80" width="110" height="74" aria-hidden="true">
+          <!-- đuôi -->
+          <path class="tail" d="M18 40 L0 18 Q10 40 0 62 Z" fill="#ff8c42" />
+          <!-- thân -->
+          <ellipse cx="62" cy="40" rx="44" ry="26" fill="#ffb347" />
+          <ellipse cx="62" cy="40" rx="44" ry="26" fill="url(#shine)" />
+          <!-- vây lưng -->
+          <path d="M50 16 Q66 2 82 18 Q66 22 50 16 Z" fill="#ff8c42" />
+          <!-- vây bụng -->
+          <path d="M58 64 Q70 76 84 64 Q70 62 58 64 Z" fill="#ff8c42" />
+          <!-- mắt -->
+          <circle class="eye-white" cx="92" cy="34" r="9" fill="#fff" />
+          <circle class="eye" cx="95" cy="34" r="4.5" fill="#1d3557" />
+          <circle cx="93.5" cy="32" r="1.5" fill="#fff" />
+          <!-- miệng -->
+          <path class="mouth" d="M104 44 Q110 46 106 50" stroke="#c1440e"
+                stroke-width="2" fill="none" stroke-linecap="round" />
+          <defs>
+            <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffffff" stop-opacity="0.45" />
+              <stop offset="0.5" stop-color="#ffffff" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Đáy bể: sỏi + rong -->
+    <div class="gravel"></div>
+    <div class="plant plant-a"></div>
+    <div class="plant plant-b"></div>
+  </div>
+
+  <!-- Bong bóng thoại của cá -->
+  <div id="speech" class="speech" hidden></div>
+
+  <!-- Bảng % nước (chỉ hiện ở popup) -->
+  <div id="meter" class="meter" hidden>
+    <span id="meterLabel">100%</span>
+  </div>
+
+  <!-- Nút bấm (chỉ hiện ở overlay) -->
+  <div id="actions" class="actions" hidden>
+    <button id="drinkBtn" class="btn btn-primary">
+      <span class="ripple-host">ĐÃ UỐNG <b>+25%</b></span>
+    </button>
+    <button id="skipBtn" class="btn btn-ghost">CHƯA UỐNG (Bỏ qua)</button>
+  </div>
+
+  <!-- Điều khiển (chỉ hiện ở popup) -->
+  <div class="popup-controls">
+    <button id="popDrink" class="btn btn-primary mini">Uống ngay 💧</button>
+    <label class="toggle" title="Bật/tắt âm thanh">
+      <input type="checkbox" id="popSound" checked />
+      <span class="switch">
+        <span class="switch-knob"></span>
+      </span>
+      <span class="switch-icon" aria-hidden="true">🔊</span>
+    </label>
+  </div>
+</div>
+
+<script src="tank.js"></script>
